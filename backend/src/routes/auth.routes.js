@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { z } = require('zod');
+const { authenticate } = require('../middleware/auth.middleware');
 const prisma = require('../config/prisma');
 
 const router = express.Router();
@@ -145,6 +146,32 @@ router.post('/login', async (req, res) => {
         role: user.role.name,
       },
     });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/v1/auth/me -> Get current logged-in user's profile
+router.get('/me', authenticate, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.userId },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        companyId: true,
+        role: { select: { name: true } },
+        company: { select: { id: true, name: true } },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({ data: user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
