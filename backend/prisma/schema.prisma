@@ -14,17 +14,18 @@ datasource db {
 }
 
 model Company {
-  id          Int      @id @default(autoincrement())
-  name        String   
-  email       String   @unique
-  Industry    String?
-  IsActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  Industry  String?
+  IsActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  roles Role[]
-  users User[]
-  employees Employee[]
+  roles      Role[]
+  users      User[]
+  employees  Employee[]
+  attendence Attendance[]
 
   @@map("companies")
 }
@@ -60,24 +61,46 @@ model User {
   @@map("users")
 }
 
-  model Employee{
-
-    id    Int  @id @default(autoincrement())
-    firstName String
-    lastName  String
-    email     String   
-    department String
-    designation String
+model Employee {
+  id          Int      @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  email       String
+  department  String
+  designation String
   companyId   Int
   createdAt   DateTime @default(now())
-  
 
-  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company    Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  attendence Attendance[]
 
   @@unique([email, companyId])
   @@index([companyId])
   @@map("employees")
-    
-    
-  }
+}
 
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  HALF_DAY
+  ON_LEAVE
+}
+
+model Attendance {
+  id         Int              @id @default(autoincrement())
+  date       DateTime         @db.Date
+  checkIn    DateTime?
+  checkOut   DateTime?
+  status     AttendanceStatus @default(PRESENT)
+  employeeId Int
+  companyId  Int
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  company  Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, date])
+  @@index([companyId, date])
+  @@map("attendance")
+}
