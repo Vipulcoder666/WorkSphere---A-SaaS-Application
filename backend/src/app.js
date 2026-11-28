@@ -4,6 +4,7 @@ const companyRoutes =  require('./routes/company.routes');
 const authRoutes = require("./routes/auth.routes");
 const employeeRoutes = require('./routes/employee.routes');
 const attendanceRoutes = require('./routes/attendance.routes');
+const userRoutes = require('./routes/user.routes');
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/api/v1/attendance', attendanceRoutes);
+app.use('/api/v1/users', userRoutes);
 
 /**
  * Health check endpoint to verify that the API server is running.
