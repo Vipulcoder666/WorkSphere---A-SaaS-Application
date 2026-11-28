@@ -7,6 +7,8 @@ const attendanceRoutes = require('./routes/attendance.routes');
 const userRoutes = require('./routes/user.routes');
 const leaveRoutes = require('./routes/leave.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
+const auditRoutes = require('./routes/audit.routes');
+const subscriptionRoutes = require('./routes/subscription.routes');
 
 const app = express();
 
@@ -20,6 +22,8 @@ app.use('/api/v1/attendance', attendanceRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/leaves', leaveRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/audit-logs', auditRoutes);
+app.use('/api/v1/subscriptions', subscriptionRoutes);
 
 /**
  * Health check endpoint to verify that the API server is running.

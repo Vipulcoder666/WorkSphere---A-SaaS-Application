@@ -2,6 +2,8 @@ const express = require('express');
 const { z } = require('zod');
 const prisma = require('../config/prisma');
 const { authenticate, authorize } = require('../middleware/auth.middleware');
+const subscriptionService = require('../services/subscription.service');
+const auditService = require('../services/audit.service');
 
 const router = express.Router();
 
@@ -28,13 +30,26 @@ router.post('/', authorize('ADMIN', 'HR'), async (req, res) => {
         details: parsed.error.flatten().fieldErrors,
       });
     }
-
+const limitCheck = await subscriptionService.canAddEmployee(req.user.companyId);
+ if (!limitCheck.allowed) {
+   return res.status(403).json({
+     error: `Plan limit reached (${limitCheck.currentCount}/${limitCheck.maxEmployees} on ${limitCheck.plan} plan). Please upgrade.`,
+   });
+ }
     const employee = await prisma.employee.create({
       data: {
         ...parsed.data,
         companyId: req.user.companyId, // Always sourced from verified JWT
       },
     });
+  await auditService.logAction({
+   companyId: req.user.companyId,
+   userId: req.user.userId,
+   action: 'EMPLOYEE_CREATED',
+   entity: 'Employee',
+   entityId: employee.id,
+   details: { email: employee.email, department: employee.department },
+ });
 
     res.status(201).json({ message: 'Employee created', data: employee });
   } catch (error) {
