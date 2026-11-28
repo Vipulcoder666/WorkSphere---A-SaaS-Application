@@ -5,7 +5,7 @@ const { authenticate, authorize } = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
-// Har employee route par login zaroori hai
+// Require authentication for all employee routes
 router.use(authenticate);
 
 const createEmployeeSchema = z.object({
@@ -32,7 +32,7 @@ router.post('/', authorize('ADMIN', 'HR'), async (req, res) => {
     const employee = await prisma.employee.create({
       data: {
         ...parsed.data,
-        companyId: req.user.companyId, // Hamesha verified JWT se!
+        companyId: req.user.companyId, // Always sourced from verified JWT
       },
     });
 
@@ -79,7 +79,7 @@ router.patch('/:id', authorize('ADMIN', 'HR'), async (req, res) => {
       });
     }
 
-    // Check ki employee isi company ka hai (IDOR protection)
+    // Verify employee belongs to the authenticated user's company (IDOR protection)
     const existing = await prisma.employee.findFirst({
       where: { id: employeeId, companyId: req.user.companyId },
     });
