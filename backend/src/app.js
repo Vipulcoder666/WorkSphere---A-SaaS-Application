@@ -6,6 +6,7 @@ const employeeRoutes = require('./routes/employee.routes');
 const attendanceRoutes = require('./routes/attendance.routes');
 const userRoutes = require('./routes/user.routes');
 const leaveRoutes = require('./routes/leave.routes');
+const dashboardRoutes = require('./routes/dashboard.routes');
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(cors());
 app.use('/api/v1/attendance', attendanceRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/leaves', leaveRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
 
 /**
  * Health check endpoint to verify that the API server is running.
